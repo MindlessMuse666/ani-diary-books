@@ -7,7 +7,6 @@ public static class DataInitializer
 {
     public static void Initialize(AniDiaryBooksContext context)
     {
-        context.Database.EnsureCreated();
         if (context.Books.Any())
         {
             return;
@@ -24,7 +23,7 @@ public static class DataInitializer
         context.SaveChanges();
 
         var genres = new List<Genre>
-            {   
+            {
                 new() { Name = "Фэнтези" },
                 new() { Name = "Детектив" },
                 new() { Name = "Научная фантастика" },

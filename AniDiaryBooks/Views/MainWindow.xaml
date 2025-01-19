@@ -1,0 +1,40 @@
+﻿<Window x:Class="AniDiaryBooks.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewmodels="clr-namespace:AniDiaryBooks.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:BookListViewModel}"
+        mc:Ignorable="d"
+        Title="{Binding WindowTitle}" Height="450" Width="800" >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="{Binding WelcomeMessage}" Margin="10,10,20,10"/>
+            <Button Content="Корзина" Margin="5,5,5,5"/>
+            <Button Content="Добавить книгу" Margin="5,5,5,5" Visibility="{Binding AddBookButtonVisibility}" />
+            <Button Content="Редактировать книгу" Margin="5,5,5,5" Visibility="{Binding EditBookButtonVisibility}" Command="{Binding EditBookCommand}"/>
+            <Button Content="Удалить книгу" Margin="5,5,5,5" Visibility="{Binding DeleteBookButtonVisibility}" />
+            <Button Content="Заказы" Margin="5,5,5,5" Visibility="{Binding OrdersButtonVisibility}" />
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+            <DataGrid x:Name="BooksDataGrid" ItemsSource="{Binding Books}" AutoGenerateColumns="False" 
+                          IsReadOnly="True" Margin="25,25,25,25" MouseDoubleClick="BooksDataGrid_MouseDoubleClick"
+                          SelectedItem="{Binding SelectedBook}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Название" Binding="{Binding Title}" Width="*"/>
+                    <DataGridTextColumn Header="Автор" Binding="{Binding Author.Name}" Width="*"/>
+                    <DataGridTextColumn Header="Жанр" Binding="{Binding Genre.Name}" Width="*"/>
+                    <DataGridTextColumn Header="Цена" Binding="{Binding Price}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </Grid>
+</Window>

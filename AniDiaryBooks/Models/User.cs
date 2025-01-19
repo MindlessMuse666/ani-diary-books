@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using AniDiaryBooks.Abstractions.Enums;
+using System.ComponentModel.DataAnnotations;
 
 
 namespace AniDiaryBooks.Models;
@@ -10,6 +11,6 @@ public class User
     public string Username { get; set; }
     [Required]
     public string Password { get; set; }
+    public UserRole Role { get; set; }
     public string? Email { get; set; }
-    public bool IsAdmin { get; set; }
 }

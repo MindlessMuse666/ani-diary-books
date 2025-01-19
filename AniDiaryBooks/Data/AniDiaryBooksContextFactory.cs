@@ -11,7 +11,7 @@ public class AniDiaryBooksContextFactory : IDesignTimeDbContextFactory<AniDiaryB
     public AniDiaryBooksContext CreateDbContext(string[] args)
     {
         IConfigurationRoot configuration = new ConfigurationBuilder()
-           .SetBasePath(Directory.GetCurrentDirectory())
+            .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json")
             .Build();
 

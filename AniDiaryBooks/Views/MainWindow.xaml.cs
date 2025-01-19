@@ -2,7 +2,7 @@
 using System.Windows;
 
 
-namespace AniDiaryBooks;
+namespace AniDiaryBooks.Views;
 
 public partial class MainWindow : Window
 {
@@ -18,6 +18,11 @@ public partial class MainWindow : Window
 
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
-        await _viewModel.LoadBooksAsync();
+        await _viewModel.LoadDataAsync();
+    }
+
+    private void BooksDataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        _viewModel.ShowBookDetailsCommand.Execute(null);
     }
 }
