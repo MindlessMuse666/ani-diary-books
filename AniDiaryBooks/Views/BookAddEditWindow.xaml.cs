@@ -1,4 +1,5 @@
-﻿using AniDiaryBooks.Data;
+﻿using AniDiaryBooks.Abstractions.Interfaces;
+using AniDiaryBooks.Data;
 using AniDiaryBooks.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Windows;
@@ -13,10 +14,16 @@ public partial class BookAddEditWindow : Window
     private List<Author> _authors;
     private List<Genre> _genres;
 
-    public BookAddEditWindow(AniDiaryBooksContext context, Book? book = null)
+    private readonly IAuthorRepository _authorRepository;
+    private readonly IGenreRepository _genreRepository;
+
+
+    public BookAddEditWindow(AniDiaryBooksContext context, IAuthorRepository authorRepository, IGenreRepository genreRepository, Book? book = null)
     {
         InitializeComponent();
         _context = context;
+        _authorRepository = authorRepository;
+        _genreRepository = genreRepository;
         Book = book;
         LoadData();
         DataContext = this;
@@ -24,8 +31,8 @@ public partial class BookAddEditWindow : Window
 
     private async void LoadData()
     {
-        _authors = await _context.Authors.ToListAsync();
-        _genres = await _context.Genres.ToListAsync();
+        _authors = await _authorRepository.GetAllAuthorsAsync();
+        _genres = await _genreRepository.GetAllGenresAsync();
 
         AuthorComboBox.ItemsSource = _authors;
         GenreComboBox.ItemsSource = _genres;

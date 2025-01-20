@@ -1,5 +1,6 @@
 ﻿using AniDiaryBooks.Models;
 
+
 namespace AniDiaryBooks.Services.Auth;
 
 public class AuthResult

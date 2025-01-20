@@ -27,13 +27,14 @@ public partial class LoginWindow : Window
         {
             // Сохраняем пользователя в статическое поле, чтобы его можно было использовать по всему приложению
             App.CurrentUser = authResult.AuthenticatedUser;
-            var mainWindow = new MainWindow(new BookListViewModel(App.GetServiceProvider().GetRequiredService<Data.AniDiaryBooksContext>()));
+            var mainWindow = new MainWindow(
+                App.GetServiceProvider().GetRequiredService<BookListViewModel>()
+            );
+
             mainWindow.Show();
             Close();
         }
         else
-        {
             MessageBox.Show(authResult.ErrorMessage, "Ошибка авторизации", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
     }
 }

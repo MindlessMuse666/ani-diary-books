@@ -3,12 +3,13 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
-using AniDiaryBooks.Data;
-using AniDiaryBooks.Models;
-using Microsoft.EntityFrameworkCore;
 using AniDiaryBooks.Abstractions.Enums;
-using AniDiaryBooks.Views;
+using AniDiaryBooks.Abstractions.Interfaces;
+using AniDiaryBooks.Data;
 using AniDiaryBooks.Helpers;
+using AniDiaryBooks.Models;
+using AniDiaryBooks.Views;
+using Microsoft.Extensions.DependencyInjection;
 
 
 namespace AniDiaryBooks.ViewModels;
@@ -16,10 +17,16 @@ namespace AniDiaryBooks.ViewModels;
 public class BookListViewModel : INotifyPropertyChanged
 {
     public ObservableCollection<Book> Books { get; set; } = new();
+    public event PropertyChangedEventHandler PropertyChanged;
     public ICommand ShowBookDetailsCommand { get; }
     public ICommand EditBookCommand { get; }
+    public ICommand AddBookCommand { get; }
+    public ICommand DeleteBookCommand { get; }
 
-    private readonly AniDiaryBooksContext _context;
+    private readonly IBookRepository _bookRepository;
+    private readonly IAuthorRepository _authorRepository;
+    private readonly IGenreRepository _genreRepository;
+
     private User _currentUser;
     private Book _selectedBook;
 
@@ -31,12 +38,16 @@ public class BookListViewModel : INotifyPropertyChanged
     private Visibility _ordersButtonVisibility;
 
 
-    public BookListViewModel(AniDiaryBooksContext context)
+    public BookListViewModel(IBookRepository bookRepository, IAuthorRepository authorRepository, IGenreRepository genreRepository)
     {
-        _context = context;
+        _bookRepository = bookRepository;
+        _authorRepository = authorRepository;
+        _genreRepository = genreRepository;
 
         ShowBookDetailsCommand = new RelayCommand(ShowBookDetails);
         EditBookCommand = new RelayCommand(EditBook);
+        AddBookCommand = new RelayCommand(AddBook);
+        DeleteBookCommand = new RelayCommand(DeleteBook);
     }
 
     public Book SelectedBook
@@ -113,14 +124,91 @@ public class BookListViewModel : INotifyPropertyChanged
         SetUserRole();
         await LoadBooksAsync();
     }
+
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+
     private async Task LoadBooksAsync()
     {
-        var books = await _context.Books.Include(b => b.Author).Include(b => b.Genre).ToListAsync();
-        Books.Clear();
-        foreach (var book in books)
+        var books = await _bookRepository.GetAllBooksAsync();
+        Books = new ObservableCollection<Book>(books);
+
+        OnPropertyChanged(nameof(Books));
+    }
+
+    private void EditBook()
+    {
+        if (SelectedBook == null)
+            return;
+
+        var bookAddEditWindow = new BookAddEditWindow(
+            App.GetServiceProvider().GetRequiredService<AniDiaryBooksContext>(),
+            App.GetServiceProvider().GetRequiredService<IAuthorRepository>(),
+            App.GetServiceProvider().GetRequiredService<IGenreRepository>(),
+            SelectedBook
+        );
+
+        if (bookAddEditWindow.ShowDialog() == true)
         {
-            Books.Add(book);
+            if (bookAddEditWindow.Book != null && bookAddEditWindow.Book.Id == 0)
+                _bookRepository.AddBookAsync(bookAddEditWindow.Book);
+            else if (bookAddEditWindow.Book != null)
+                _bookRepository.UpdateBookAsync(bookAddEditWindow.Book);
+
+            LoadBooksAsync();
         }
+    }
+
+    private void AddBook()
+    {
+        var bookAddEditWindow = new BookAddEditWindow(
+            App.GetServiceProvider().GetRequiredService<AniDiaryBooksContext>(),
+            App.GetServiceProvider().GetRequiredService<IAuthorRepository>(),
+            App.GetServiceProvider().GetRequiredService<IGenreRepository>()
+        );
+
+        if (bookAddEditWindow.ShowDialog() == true)
+        {
+            if (bookAddEditWindow.Book != null)
+            {
+                _bookRepository.AddBookAsync(bookAddEditWindow.Book);
+                LoadBooksAsync();
+            }
+        }
+    }
+
+    private async void DeleteBook()
+    {
+        if (SelectedBook == null)
+        {
+            MessageBox.Show("Выберите книгу для удаления.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
+        var result = MessageBox.Show(
+            $"Вы действительно хотите удалить книгу '{SelectedBook.Title}'?",
+            "Подтверждение удаления",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question
+        );
+
+        if (result == MessageBoxResult.Yes)
+        {
+            await _bookRepository.DeleteBookAsync(SelectedBook);
+            await LoadBooksAsync();
+        }
+    }
+
+    private void ShowBookDetails()
+    {
+        if (SelectedBook == null)
+            return;
+
+        var bookDetailsWindow = new BookDetailsWindow();
+        bookDetailsWindow.DataContext = new BookDetailsViewModel(SelectedBook);
+        bookDetailsWindow.ShowDialog();
     }
 
     private void SetUserRole()
@@ -156,36 +244,4 @@ public class BookListViewModel : INotifyPropertyChanged
             OrdersButtonVisibility = Visibility.Collapsed;
         }
     }
-
-    private void EditBook()
-    {
-        if (SelectedBook == null) return;
-
-        var bookAddEditWindow = new BookAddEditWindow(_context, SelectedBook);
-        if (bookAddEditWindow.ShowDialog() == true)
-        {
-            _context.SaveChanges();
-            LoadBooksAsync();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
-
-
-    private void ShowBookDetails()
-    {
-        if (SelectedBook == null) return;
-
-        var bookDetailsWindow = new BookDetailsWindow();
-        bookDetailsWindow.DataContext = new BookDetailsViewModel(SelectedBook);
-        bookDetailsWindow.ShowDialog();
-    }
-
-
 }

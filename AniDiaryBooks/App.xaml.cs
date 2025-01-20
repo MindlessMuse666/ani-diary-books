@@ -1,5 +1,8 @@
-﻿using AniDiaryBooks.Data;
+﻿using AniDiaryBooks.Abstractions.Interfaces;
+using AniDiaryBooks.Data;
 using AniDiaryBooks.Models;
+using AniDiaryBooks.Repositories;
+using AniDiaryBooks.ViewModels;
 using AniDiaryBooks.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -48,9 +51,19 @@ public partial class App : Application
         services.AddDbContext<AniDiaryBooksContext>(options =>
             options.UseNpgsql(_configuration.GetConnectionString("DefaultConnection")));
 
+        // Регистрация View и Services:
         services.AddScoped<MainWindow>();
         services.AddScoped<Services.Auth.AuthService>();
         services.AddScoped<LoginWindow>();
+
+        // Регистрация репозиториев:
+        services.AddScoped<IBookRepository, BookRepository>();
+        services.AddScoped<IAuthorRepository, AuthorRepository>();
+        services.AddScoped<IGenreRepository, GenreRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+
+        // Регистрация ViewModels:
+        services.AddScoped<BookListViewModel>();
 
         return services.BuildServiceProvider();
     }

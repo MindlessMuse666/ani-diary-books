@@ -14,9 +14,9 @@
         <StackPanel Orientation="Horizontal">
             <TextBlock Text="{Binding WelcomeMessage}" Margin="10,10,20,10"/>
             <Button Content="Корзина" Margin="5,5,5,5"/>
-            <Button Content="Добавить книгу" Margin="5,5,5,5" Visibility="{Binding AddBookButtonVisibility}" />
+            <Button Content="Добавить книгу" Margin="5,5,5,5" Visibility="{Binding AddBookButtonVisibility}" Command="{Binding AddBookCommand}"/>
             <Button Content="Редактировать книгу" Margin="5,5,5,5" Visibility="{Binding EditBookButtonVisibility}" Command="{Binding EditBookCommand}"/>
-            <Button Content="Удалить книгу" Margin="5,5,5,5" Visibility="{Binding DeleteBookButtonVisibility}" />
+            <Button Content="Удалить книгу" Margin="5,5,5,5" Visibility="{Binding DeleteBookButtonVisibility}" Command="{Binding DeleteBookCommand}" />
             <Button Content="Заказы" Margin="5,5,5,5" Visibility="{Binding OrdersButtonVisibility}" />
         </StackPanel>
 

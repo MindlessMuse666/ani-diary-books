@@ -1,6 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <FontFamily x:Key="DefaultFont">/Static/Fonts/Nevduplenysh-Regular.ttf#Nevduplenysh</FontFamily>
+    <FontFamily x:Key="DefaultFont">/Static/Fonts/anime_ace.ttf#anime_ace</FontFamily>
 
     <Style TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource DefaultFont}" />
